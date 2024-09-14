@@ -111,9 +111,9 @@ class TestReview(unittest.TestCase):
         string = "[Review] ({}) {}".format(review.id, review.__dict__)
         self.assertE(string, str(review))
 =======
-   def test_str(self):
-    """test that the str method has the correct output"""
-    review = Review()
-    string = "[Review] ({}) {}".format(review.id, review.__dict__)
-    self.assertEqual(string, str(review))
+     def test_str(self):
+        """test that the str method has the correct output"""
+        review = Review()
+        string = "[Review] ({}) {}".format(review.id, review.__dict__)
+        self.assertEqual(string, str(review))
 
