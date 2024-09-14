@@ -13,6 +13,7 @@ from models.city import City
 from models.amenity import Amenity
 from models.review import Review
 
+
 class TestFileStorage(unittest.TestCase):
     """Unittests for testing the FileStorage class."""
 
@@ -38,7 +39,10 @@ class TestFileStorage(unittest.TestCase):
         with open(self.test_file, "r") as f:
             saved_data = json.load(f)
 
-        self.assertIn(f"BaseModel.{test_model.id}", saved_data)
+        key = f"BaseModel.{test_model.id}"
+        self.assertIn(key, saved_data)
+        self.assertEqual(saved_data[key]["id"], test_model.id)
+        self.assertEqual(saved_data[key]["__class__"], "BaseModel")
 
     def test_reload_method_reloads_saved_objects(self):
         """Test if the reload method correctly loads objects from file."""
@@ -49,7 +53,11 @@ class TestFileStorage(unittest.TestCase):
         models.storage._FileStorage__objects = {}
         models.storage.reload()
 
-        self.assertIn(f"BaseModel.{test_model.id}", models.storage.all())
+        key = f"BaseModel.{test_model.id}"
+        self.assertIn(key, models.storage.all())
+        reloaded_obj = models.storage.all()[key]
+        self.assertEqual(reloaded_obj.id, test_model.id)
+        self.assertIsInstance(reloaded_obj, BaseModel)
 
     def test_reload_method_does_not_do_anything_for_non_existent_file(self):
         """Test if reload does not do anything if the file does not exist."""
@@ -61,6 +69,17 @@ class TestFileStorage(unittest.TestCase):
         initial_objects = models.storage.all().copy()
         models.storage.reload()
         self.assertEqual(initial_objects, models.storage.all())
+
+    def test_all_method_returns_dict(self):
+        """Test if all method returns a dictionary."""
+        self.assertIsInstance(models.storage.all(), dict)
+
+    def test_new_method_adds_object(self):
+        """Test if new method adds an object to storage."""
+        test_model = BaseModel()
+        models.storage.new(test_model)
+        key = f"BaseModel.{test_model.id}"
+        self.assertIn(key, models.storage.all())
 
 if __name__ == "__main__":
     unittest.main()
