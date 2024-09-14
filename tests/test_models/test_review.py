@@ -108,4 +108,4 @@ class TestReview(unittest.TestCase):
         """test that the str method has the correct output"""
         review = Review()
         string = "[Review] ({}) {}".format(review.id, review.__dict__)
-        self.assertE
+        self.assertE(string, str(review))
