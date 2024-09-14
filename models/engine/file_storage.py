@@ -1,63 +1,66 @@
 #!/usr/bin/python3
-"""Defines the FileStorage class."""
-import json
+"""Defines unittests for models/engine/file_storage.py."""
 import os
+import json
+import models
+import unittest
 from models.base_model import BaseModel
+from models.engine.file_storage import FileStorage
 from models.user import User
 from models.state import State
-from models.city import City
 from models.place import Place
+from models.city import City
 from models.amenity import Amenity
 from models.review import Review
 
+class TestFileStorage(unittest.TestCase):
+    """Unittests for testing the FileStorage class."""
 
-class FileStorage:
-    """Represent an abstracted storage engine.
+    def setUp(self):
+        """Set up test cases."""
+        self.test_file = "test_file.json"
+        models.storage._FileStorage__file_path = self.test_file
+        models.storage._FileStorage__objects = {}
 
-    Attributes:
-        __file_path (str): The name of the file to save objects to.
-        __objects (dict): A dictionary of instantiated objects.
-    """
-
-    __file_path = "file.json"
-    __objects = {}
-
-    def all(self):
-        """Return the dictionary __objects."""
-        return FileStorage.__objects
-
-    def new(self, obj):
-        """Set in __objects obj with key <obj_class_name>.id"""
-        key = f"{obj.__class__.__name__}.{obj.id}"
-        FileStorage.__objects[key] = obj
-
-    def save(self):
-        """Serialize __objects to the JSON file __file_path."""
-        odict = FileStorage.__objects
-        objdict = {obj: odict[obj].to_dict() for obj in odict.keys()}
-        with open(FileStorage.__file_path, "w") as f:
-            json.dump(objdict, f)
-
-    def reload(self):
-        """Deserialize the JSON file __file_path to __objects, if it exists."""
+    def tearDown(self):
+        """Clean up after test cases."""
         try:
-            with open(FileStorage.__file_path) as f:
-                objdict = json.load(f)
-                for key, value in objdict.items():
-                    class_name = value["__class__"]
-                    del value["__class__"]
-                    obj = eval(class_name)(**value)
-                    self.__objects[key] = obj
+            os.remove(self.test_file)
         except FileNotFoundError:
             pass
 
-    def delete(self, obj=None):
-        """Delete obj from __objects if it's inside."""
-        if obj is not None:
-            key = f"{obj.__class__.__name__}.{obj.id}"
-            if key in self.__objects:
-                del self.__objects[key]
+    def test_save_method_saves_objects_to_file(self):
+        """Test if the save method saves objects to file."""
+        test_model = BaseModel()
+        models.storage.new(test_model)
+        models.storage.save()
 
-    def close(self):
-        """Call reload() method for deserializing the JSON file to objects."""
-        self.reload()
+        with open(self.test_file, "r") as f:
+            saved_data = json.load(f)
+
+        self.assertIn(f"BaseModel.{test_model.id}", saved_data)
+
+    def test_reload_method_reloads_saved_objects(self):
+        """Test if the reload method correctly loads objects from file."""
+        test_model = BaseModel()
+        models.storage.new(test_model)
+        models.storage.save()
+
+        models.storage._FileStorage__objects = {}
+        models.storage.reload()
+
+        self.assertIn(f"BaseModel.{test_model.id}", models.storage.all())
+
+    def test_reload_method_does_not_do_anything_for_non_existent_file(self):
+        """Test if reload does not do anything if the file does not exist."""
+        try:
+            os.remove(self.test_file)
+        except FileNotFoundError:
+            pass
+
+        initial_objects = models.storage.all().copy()
+        models.storage.reload()
+        self.assertEqual(initial_objects, models.storage.all())
+
+if __name__ == "__main__":
+    unittest.main()
