@@ -8,6 +8,7 @@ The command interpreter is a command-line interface (CLI) application built usin
 
     ## Start the command interpreter
  ./console.py
+ 
        How to Use It
 Once the interpreter is running, you can use the following commands:
 
