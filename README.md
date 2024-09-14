@@ -8,8 +8,7 @@ The command interpreter is a command-line interface (CLI) application built usin
 
     ## Start the command interpreter
  ./console.py
-
-     How to Use It
+       How to Use It
 Once the interpreter is running, you can use the following commands:
 
 create <class>: Creates a new instance of the specified class and saves it.
@@ -17,6 +16,7 @@ show <class> <id>: Displays the given class instance with the specified ID.
 destroy <class> <id>: Deletes the class instance with the given ID.
 all <class>: Displays all instances of the specified class.
 quit: Exits the command interpreter
+
          Example
 Create a new user: create User email="lebo@yahoo.com" password="246@ypd"
 Show information about a user: show User 120
