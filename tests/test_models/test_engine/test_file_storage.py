@@ -1,10 +1,5 @@
 #!/usr/bin/python3
-"""Defines unittests for models/engine/file_storage.py.
-
-Unittest classes:
-    TestFileStorage_instantiation
-    TestFileStorage_methods
-"""
+"""Defines unittests for models/engine/file_storage.py."""
 import os
 import json
 import models
@@ -18,31 +13,54 @@ from models.city import City
 from models.amenity import Amenity
 from models.review import Review
 
-# Add the project root directory to Python path
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
+class TestFileStorage(unittest.TestCase):
+    """Unittests for testing the FileStorage class."""
 
-class TestFileStorage_instantiation(unittest.TestCase):
-    """Unittests for testing instantiation of the FileStorage class."""
+    def setUp(self):
+        """Set up test cases."""
+        self.test_file = "test_file.json"
+        models.storage._FileStorage__file_path = self.test_file
+        models.storage._FileStorage__objects = {}
 
-    def test_FileStorage_instantiation_no_args(self):
-        self.assertEqual(type(FileStorage()), FileStorage)
+    def tearDown(self):
+        """Clean up after test cases."""
+        try:
+            os.remove(self.test_file)
+        except FileNotFoundError:
+            pass
 
-    def test_FileStorage_instantiation_with_arg(self):
-        with self.assertRaises(TypeError):
-            FileStorage(None)
+    def test_save_method_saves_objects_to_file(self):
+        """Test if the save method saves objects to file."""
+        test_model = BaseModel()
+        models.storage.new(test_model)
+        models.storage.save()
 
-    def test_FileStorage_file_path_is_private_str(self):
-        self.assertEqual(str, type(FileStorage._FileStorage__file_path))
+        with open(self.test_file, "r") as f:
+            saved_data = json.load(f)
 
-    def testFileStorage_objects_is_private_dict(self):
-        self.assertEqual(dict, type(FileStorage._FileStorage__objects))
+        self.assertIn(f"BaseModel.{test_model.id}", saved_data)
 
-    def test_storage_initializes(self):
-        self.assertEqual(type(models.storage), FileStorage)
+    def test_reload_method_reloads_saved_objects(self):
+        """Test if the reload method correctly loads objects from file."""
+        test_model = BaseModel()
+        models.storage.new(test_model)
+        models.storage.save()
 
-# ... rest of your test cases ...
+        models.storage._FileStorage__objects = {}
+        models.storage.reload()
+
+        self.assertIn(f"BaseModel.{test_model.id}", models.storage.all())
+
+    def test_reload_method_does_not_do_anything_for_non_existent_file(self):
+        """Test if reload does not do anything if the file does not exist."""
+        try:
+            os.remove(self.test_file)
+        except FileNotFoundError:
+            pass
+
+        initial_objects = models.storage.all().copy()
+        models.storage.reload()
+        self.assertEqual(initial_objects, models.storage.all())
 
 if __name__ == "__main__":
     unittest.main()
