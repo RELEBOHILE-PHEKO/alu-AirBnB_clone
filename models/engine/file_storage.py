@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """Defines the FileStorage class."""
 import json
+import os
 from models.base_model import BaseModel
 from models.user import User
 from models.state import State
@@ -34,7 +35,6 @@ class FileStorage:
         """Serialize __objects to the JSON file __file_path."""
         odict = FileStorage.__objects
         objdict = {obj: odict[obj].to_dict() for obj in odict.keys()}
-        print("objdict:", objdict)
         with open(FileStorage.__file_path, "w") as f:
             json.dump(objdict, f)
 
@@ -43,9 +43,21 @@ class FileStorage:
         try:
             with open(FileStorage.__file_path) as f:
                 objdict = json.load(f)
-                for o in objdict.values():
-                    cls_name = o["__class__"]
-                    del o["__class__"]
-                    self.new(eval(cls_name)(**o))
+                for key, value in objdict.items():
+                    class_name = value["__class__"]
+                    del value["__class__"]
+                    obj = eval(class_name)(**value)
+                    self.__objects[key] = obj
         except FileNotFoundError:
-            return
+            pass
+
+    def delete(self, obj=None):
+        """Delete obj from __objects if it's inside."""
+        if obj is not None:
+            key = f"{obj.__class__.__name__}.{obj.id}"
+            if key in self.__objects:
+                del self.__objects[key]
+
+    def close(self):
+        """Call reload() method for deserializing the JSON file to objects."""
+        self.reload()
