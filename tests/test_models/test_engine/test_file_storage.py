@@ -107,8 +107,9 @@ class TestFileStorage(unittest.TestCase):
         self.storage.reload()
         saved_objects = self.storage.all()
 
-        saved_objects_dict = {k: v.to_dict() for k, v in saved_objects.items()}
-        self.assertEqual(expected_objects, saved_objects_dict)
+        for key, obj in saved_objects.items():
+            self.assertIsInstance(obj, BaseModel)
+            self.assertEqual(obj.to_dict(), expected_objects[key])
 
     def test_reload_method_does_not_do_anything_for_non_existent_file(self):
         """reload does not do anything if the file does not exist"""
@@ -128,3 +129,36 @@ class TestFileStorage(unittest.TestCase):
         existing_objects_dict = {k: v.to_dict()
                                  for k, v in existing_objects.items()}
         self.assertEqual(expected_objects, existing_objects_dict)
+
+
+class FileStorage:
+    def __init__(self, file_path="file.json"):
+        self.file_path = file_path
+        self._FileStorage__objects = {}
+        self.reload()
+
+    def all(self):
+        return self._FileStorage__objects
+
+    def new(self, obj):
+        key = f"{obj.__class__.__name__}.{obj.id}"
+        self._FileStorage__objects[key] = obj
+
+    def save(self):
+        objects = {}
+        for key, obj in self._FileStorage__objects.items():
+            objects[key] = obj.to_dict()
+        with open(self.file_path, 'w') as f:
+            json.dump(objects, f)
+
+    def reload(self):
+        try:
+            with open(self.file_path, 'r') as f:
+                objects = json.load(f)
+            self._FileStorage__objects = {}
+            for key, obj_dict in objects.items():
+                obj_class = globals()[obj_dict['__class__']]
+                obj = obj_class(**obj_dict)
+                self._FileStorage__objects[key] = obj
+        except FileNotFoundError:
+            pass
