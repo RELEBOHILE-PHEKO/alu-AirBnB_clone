@@ -116,4 +116,4 @@ class TestReview(unittest.TestCase):
     review = Review()
     string = "[Review] ({}) {}".format(review.id, review.__dict__)
     self.assertEqual(string, str(review))
->>>>>>> ea71482356ae280f7c0812320397deed18bfb20f
+
