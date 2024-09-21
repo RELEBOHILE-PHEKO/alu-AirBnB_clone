@@ -1,0 +1,16 @@
+header {
+    background-color: #f8f8f8;
+    padding: 10px;
+    text-align: center;
+}
+
+header img {
+    max-width: 100%;
+    height: auto;
+}
+
+@media screen and (max-width: 800px) {
+    header {
+        padding: 5px;
+    }
+}

@@ -1,0 +1,37 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container {
+    width: 90%;
+    margin: 0 auto;
+}
+
+/* Ensure no horizontal scrolling */
+html, body {
+    overflow-x: hidden;
+}
+
+/* Header Styles */
+header {
+    background-color: #fff;
+    padding: 10px;
+    text-align: center;
+}
+
+.header-img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Footer Styles */
+footer {
+    background-color: #fff;
+    text-align: center;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+}

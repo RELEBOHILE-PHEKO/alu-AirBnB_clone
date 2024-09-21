@@ -1,0 +1,20 @@
+/* Filters Styles */
+.filters {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.filters h2 {
+    font-size: 18px;
+    color: #000; /* Ensure contrast */
+}
+
+.filters button {
+    margin-top: 10px;
+}
+
+/* Ensure buttons are accessible */
+.filters button:focus {
+    outline: 3px solid #FF5A5F; /* Visible focus outline */
+}
