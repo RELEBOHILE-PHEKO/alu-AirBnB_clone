@@ -1,5 +1,6 @@
 footer {
-    background-color: #00FF00; /* Green */
+    background-color: #ffff;
+    color: #000000;
     height: 60px;
     width: 100%;
     border-top: 1px solid #CCCCCC;
@@ -7,4 +8,6 @@ footer {
     justify-content: center;
     align-items: center;
     position: relative;
+    margin-top: auto;
+    font-size: 16px;
 }
